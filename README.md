@@ -87,7 +87,7 @@ for bucket in s3.buckets.all():
 Try to write reusable code, avoid hard coding values wherever possible. (For learning purpose, we will start by hard coding, but gradually refactor our work to follow best practices).
 
 
-##VPC | SUBNETS | SECURITY GROUPS##
+## VPC | SUBNETS | SECURITY GROUPS
 
 **VPC | Subnets | Security Groups**
 
@@ -180,7 +180,7 @@ resource "aws_vpc" "main" {
 To destroy whatever has been created run ```terraform destroy``` command, and type ```yes``` after evaluating the plan.
 
 
-## FIXING THE PROBLEMS BY CODE REFACTORING ##
+## FIXING THE PROBLEMS BY CODE REFACTORING
 
 - Fixing The Problems By Code Refactoring
 
@@ -430,3 +430,111 @@ resource "aws_subnet" "public" {
 
 
 ## INTRODUCING VARIABLES.TF & TERRAFORM.TFVARS
+
+- Instead of havng a long lisf of variables in main.tf file, we can actually make our code a lot more readable and better structured by moving out some parts of the configuration content to other files.
+
+   - We will put all variable declarations in a separate file
+
+   - And provide non default values to each of them
+
+1. - Create a new file and name it ***variables.tf***
+
+2. - Copy all the variable declarations into the new file.
+
+3. - Create another file, name it ***terraform.tfvars***
+
+- Set values for each of the variables.
+
+- **Maint.tf**
+
+```
+# Get list of availability zones
+data "aws_availability_zones" "available" {
+state = "available"
+}
+
+provider "aws" {
+  region = var.region
+}
+
+# Create VPC
+resource "aws_vpc" "main" {
+  cidr_block                     = var.vpc_cidr
+  enable_dns_support             = var.enable_dns_support 
+  enable_dns_hostnames           = var.enable_dns_support
+
+}
+
+# Create public subnets
+resource "aws_subnet" "public" {
+  count  = var.preferred_number_of_public_subnets == null ? length(data.aws_availability_zones.available.names) : var.preferred_number_of_public_subnets   
+  vpc_id = aws_vpc.main.id
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8 , count.index)
+  map_public_ip_on_launch = true
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+}
+```
+
+<img width="918" alt="main tf" src="https://github.com/eyolegoo/PROJECT-16/assets/115954100/0c090d45-80ca-43bf-8c4b-e4d0c3ce42a6">
+
+
+- **variables.tf**
+
+```
+variable "region" {
+      default = "us-east-1"
+}
+
+variable "vpc_cidr" {
+    default = "172.16.0.0/16"
+}
+
+variable "enable_dns_support" {
+    default = "true"
+}
+
+variable "enable_dns_hostnames" {
+    default ="true" 
+}
+
+  variable "preferred_number_of_public_subnets" {
+      default = 2
+}
+```
+
+<img width="688" alt="variable tf" src="https://github.com/eyolegoo/PROJECT-16/assets/115954100/7e826afb-1c53-4756-a33a-9c23c713de9d">
+
+
+- **terraform.tfvars**
+  
+```
+region = "us-east-1"
+
+vpc_cidr = "172.16.0.0/16" 
+
+enable_dns_support = "true" 
+
+enable_dns_hostnames = "true"  
+
+preferred_number_of_public_subnets = 2
+```
+
+<img width="720" alt="terraform tfvars" src="https://github.com/eyolegoo/PROJECT-16/assets/115954100/9d32c43d-985c-444f-9275-947cfe7c8e41">
+
+
+- Run ```terraform plan``` and ensure everything works
+
+**ANOTHER RUN**
+
+- To configure AWS CLI on Windows terminal(as administrator)
+
+- Run ```Invoke-WebRequest -Uri https://awscli.amazonaws.com/AWSCLIV2.msi -OutFile AWSCLIV2.msi```
+
+- And ```Start-Process -Wait -FilePath .\AWSCLIV2.msi```
+
+- Restart the system. And check the AWS Version ```aws --version```
+
+<img width="593" alt="AWS AUTHENTICATION" src="https://github.com/eyolegoo/PROJECT-16/assets/115954100/4200e3bc-92c7-46c7-b7c1-fa726b1d2d67">
+
+<img width="686" alt="check s3 bucket" src="https://github.com/eyolegoo/PROJECT-16/assets/115954100/10a1a4b1-f899-4fa9-a8af-cfee91414d9a">
+
