@@ -1,10 +1,7 @@
 # PROJECT-16
 ### AUTOMATE INFRASTRUCTURE WITH IAC USING TERRAFORM PART 1 ###
 
-AWS Cloud Solution For 2 Company Websites Using A Reverse Proxy Technology - dare
-https://www.dareyio.com/docs/aws-cloud-solution-for-2-company-websites-using-a-reverse-proxy-technology/
-www.dareyio.com
-
+<img width="399" alt="Infrastructure design" src="https://github.com/eyolegoo/PROJECT-16/assets/115954100/5f5c6f2a-45d6-449e-aa08-30d28d523954">
 
 
 - After you have built AWS infrastructure for 2 websites manually, it is time to automate the process using Terraform.
